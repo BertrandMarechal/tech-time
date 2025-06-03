@@ -13,7 +13,12 @@ export function TodoList() {
     return <h2>Error: {error}</h2>;
   }
   if (!todos?.total) {
-    return <h2>No records found, please add one.</h2>;
+    return (
+      <div className="flex flex-col gap-4">
+        <h2>No records found, please add one.</h2>
+        <NewTodo></NewTodo>
+      </div>
+    );
   }
   function handleCancel() {
     unselectTodo();

@@ -35,7 +35,7 @@ export function NewTodo({ todo, onCancel, saveButtonLabel="Add" }: { saveButtonL
         <label htmlFor="content" className="text-xl">
           Content
         </label>
-        <input id="content" type="text" name="content" className="border rounded" required defaultValue={todo ? todo.content : ""} />
+        <input id="content" type="text" name="content" className="p-2 border rounded" required defaultValue={todo ? todo.content : ""} />
         <Button>{saveButtonLabel}</Button>
         {onCancel && (
           <Button type="reset" onClick={onCancel}>
