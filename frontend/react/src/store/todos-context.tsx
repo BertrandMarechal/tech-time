@@ -13,6 +13,7 @@ export const TodosContext = createContext<{
   size: number;
   from: number;
   error: string | null;
+  searchText: string;
   addTodo: (todo: Pick<Todo, "content">) => void;
   selectTodo: (todo: Todo) => void;
   unselectTodo: () => void;
@@ -25,11 +26,13 @@ export const TodosContext = createContext<{
   previousPage: () => void;
   firstPage: () => void;
   lastPage: () => void;
+  filterByText: (text: string) => void;
 }>({
   size: 25,
   from: 0,
   loading: false,
   error: null,
+  searchText:"",
   addTodo: (_todo: Pick<Todo, "content">) => {},
   selectTodo: (_todo: Todo) => {},
   unselectTodo: () => {},
@@ -41,6 +44,7 @@ export const TodosContext = createContext<{
   previousPage: () => {},
   firstPage: () => {},
   lastPage: () => {},
+  filterByText: (_text: string) => {},
   sorting: {
     sort: "date_created",
     direction: "asc",
@@ -55,6 +59,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   const [error, setError] = useState<string | null>(null);
   const [size, setSize] = useState<number>(25);
   const [from, setFrom] = useState<number>(0);
+  const [searchText, setSearchText] = useState("");
   const [sorting, setSorting] = useState<SortingParameters>({
     sort: "date_created",
     direction: "asc",
@@ -69,7 +74,8 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
           sort: sorting.sort,
           direction: sorting.direction,
           from: `${from}`,
-          size: `${size}`
+          size: `${size}`,
+          text: searchText,
         });
         const response = await fetch(`http://localhost:20701/todos?${query.toString()}`);
         if (!response.ok) {
@@ -162,6 +168,10 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     setSize(size);
     setReload(true);
   }
+  function filterByText(text: string) {
+    setSearchText(text);
+    setReload(true);
+  }
 
   const contextValue = {
     todos,
@@ -182,6 +192,8 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     previousPage,
     firstPage,
     lastPage,
+    filterByText,
+    searchText,
   };
 
   return <TodosContext value={contextValue}>{children}</TodosContext>;

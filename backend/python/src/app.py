@@ -46,6 +46,8 @@ def index():
         direction_param = request.args.get('direction', "asc")
         size_param = request.args.get('size', "25")
         from_param = request.args.get('from', "0")
+        text_param = request.args.get('text', "")
+        query = Todo.query
         if sort_param == "content":
             order_by = Todo.content
         if direction_param == "desc":
@@ -54,9 +56,10 @@ def index():
             size = int(size_param)
         if from_param != "":
             offset = int(from_param)
-            print(size, offset, int(offset / size))
-        data = Todo.query.order_by(order_by).paginate(per_page=size, page=(int(offset / size) + 1)).items
-        total = Todo.query.count()
+        if text_param != "":
+            query = query.filter(Todo.content.ilike(f"%{text_param}%"))
+        data = query.order_by(order_by).paginate(per_page=size, page=(int(offset / size) + 1)).items
+        total = query.count()
 
         # text_param = request.args.get('text', "")
         # data = Todo.query.order_by(order_by).paginate(per_page=size, page=int(offset / size))

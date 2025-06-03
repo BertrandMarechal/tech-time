@@ -1,26 +1,18 @@
 import { use } from "react";
-import { TodoListItem } from "./TodoListItem.tsx";
 import { TodosContext } from "../../store/todos-context.tsx";
 import { NewTodo } from "../NewTodo.tsx";
 import { SortingButton } from "../SortingButton.tsx";
 import { TodoListPagination } from "./TodoListPagination.tsx";
+import { TodoListItems } from "./TodoListItems.tsx";
 
 export function TodoList() {
-  const { todos, error, loading, todoToUpdate, unselectTodo, sort, sorting } = use(TodosContext);
+  const { error, loading, todoToUpdate, unselectTodo, sort, sorting, filterByText, searchText } = use(TodosContext);
 
   if (loading) {
     return <h2>Loading...</h2>;
   }
   if (error) {
     return <h2>Error: {error}</h2>;
-  }
-  if (!todos?.total) {
-    return (
-      <div className="flex flex-col gap-4">
-        <h2>No records found, please add one.</h2>
-        <NewTodo></NewTodo>
-      </div>
-    );
   }
   function handleCancel() {
     unselectTodo();
@@ -31,18 +23,34 @@ export function TodoList() {
       direction = sorting.direction === "asc" ? "desc" : "asc";
     }
     sort({
-      direction, sort: sortOn,
-    })
+      direction,
+      sort: sortOn,
+    });
   }
 
   if (todoToUpdate) {
-    return <NewTodo saveButtonLabel="Update" todo={todoToUpdate} onCancel={handleCancel}></NewTodo>
+    return <NewTodo saveButtonLabel="Update" todo={todoToUpdate} onCancel={handleCancel}></NewTodo>;
+  }
+  function handleTextChange(e: Event) {
+    filterByText((e.target as any).value);
   }
   return (
     <>
       <div className="flex flex-col gap-2">
         <NewTodo></NewTodo>
-        Total: {todos.total}
+        <div className="flex flex-row gap-2">
+          <label htmlFor="search-text" className="text-xl">
+            Search
+          </label>
+          <input
+            id="search-text"
+            type="text"
+            name="search-text"
+            className="p-1 border rounded"
+            onChange={handleTextChange}
+            defaultValue={searchText}
+          />
+        </div>
         <div className="flex flex-row gap-2 items-center">
           Order by
           <SortingButton value="date_created" onSort={() => handleSort("date_created")} currentSorting={sorting}>
@@ -52,9 +60,7 @@ export function TodoList() {
             Content
           </SortingButton>
         </div>
-        {todos.data.map((todo) => (
-          <TodoListItem key={todo.id} item={todo} />
-        ))}
+        <TodoListItems></TodoListItems>
       </div>
       <TodoListPagination></TodoListPagination>
     </>
