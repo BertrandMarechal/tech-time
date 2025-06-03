@@ -35,4 +35,5 @@ services:
     environment:
       - PORT=20710
     volumes:
+      - /app/node_modules
       - ./frontend/react:/opt/app

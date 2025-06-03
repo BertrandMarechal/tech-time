@@ -7,10 +7,9 @@ import os
 import logging
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "http://localhost:20710"}})  # allow CORS for frontendd.
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost:20710"}})  # allow CORS for frontend.
 app.config[
     'SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.environ['DB_USER']}:{os.environ['DB_PASSWORD']}@{os.environ['DB_HOST']}:{os.environ['DB_PORT']}/{os.environ['DB_NAME']}"
-print(app.config['SQLALCHEMY_DATABASE_URI'], "=<")
 app.config['CORS_HEADERS'] = 'Content-Type'
 db = SQLAlchemy(app)
 
@@ -41,11 +40,9 @@ def index():
             return 'There was an issue adding the task'
     else:
         data = Todo.query.order_by(Todo.date_created).all()
-        print(data)
         return jsonify(data=data, total=len(data))
 @app.route('/todos/<int:todo_id>', methods=['DELETE', 'PUT', 'GET'])  # type: ignore
 def details(todo_id):
-    print(todo_id);
     if request.method == 'DELETE':
         todo_to_delete = Todo.query.get_or_404(todo_id)
         try:
@@ -61,7 +58,6 @@ def details(todo_id):
         data = request.get_json()
         todo_to_update = Todo.query.get_or_404(todo_id)
         todo_to_update.content = data['content']
-        print(data['content'])
         todo_to_update.date_updated = datetime.utcnow()
         try:
             db.session.commit()

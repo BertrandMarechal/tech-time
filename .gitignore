@@ -2,3 +2,5 @@
 /temp
 /backend/python/src/__pycache__
 .idea/
+/backend/python/.idea/
+/frontend/react/.idea/
