@@ -10,6 +10,8 @@ export const TodosContext = createContext<{
   todos?: PaginationResults<Todo>;
   todoToUpdate?: Todo;
   loading: boolean;
+  size: number;
+  from: number;
   error: string | null;
   addTodo: (todo: Pick<Todo, "content">) => void;
   selectTodo: (todo: Todo) => void;
@@ -18,7 +20,14 @@ export const TodosContext = createContext<{
   removeTodo: (id: number) => void;
   sorting: SortingParameters;
   sort: (params: SortingParameters) => void;
+  updateSize: (size: number) => void;
+  nextPage: () => void;
+  previousPage: () => void;
+  firstPage: () => void;
+  lastPage: () => void;
 }>({
+  size: 25,
+  from: 0,
   loading: false,
   error: null,
   addTodo: (_todo: Pick<Todo, "content">) => {},
@@ -27,6 +36,11 @@ export const TodosContext = createContext<{
   updateTodo: (_id: number, _todo: Pick<Todo, "content">) => {},
   removeTodo: (_id: number) => {},
   sort: (_params: SortingParameters) => {},
+  updateSize: (_size: number) => {},
+  nextPage: () => {},
+  previousPage: () => {},
+  firstPage: () => {},
+  lastPage: () => {},
   sorting: {
     sort: "date_created",
     direction: "asc",
@@ -39,6 +53,8 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   const [reload, setReload] = useState(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [size, setSize] = useState<number>(25);
+  const [from, setFrom] = useState<number>(0);
   const [sorting, setSorting] = useState<SortingParameters>({
     sort: "date_created",
     direction: "asc",
@@ -52,6 +68,8 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
         const query = new URLSearchParams({
           sort: sorting.sort,
           direction: sorting.direction,
+          from: `${from}`,
+          size: `${size}`
         });
         const response = await fetch(`http://localhost:20701/todos?${query.toString()}`);
         if (!response.ok) {
@@ -68,7 +86,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     }
 
     loadTodos();
-  }, [reload, sorting]);
+  }, [reload, sorting, from, size]);
 
   async function addTodo(enteredTodoData: Pick<Todo, "content">) {
     const response = await fetch("http://localhost:20701/todos", {
@@ -124,6 +142,27 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     setSorting(desiredSorting);
   }
 
+  function nextPage() {
+    setFrom(value => value + size);
+    setReload(true);
+  }
+  function previousPage() {
+    setFrom(value => value - size);
+    setReload(true);
+  }
+  function firstPage() {
+    setFrom(0);
+    setReload(true);
+  }
+  function lastPage() {
+    setFrom(Math.floor((todos?.total || 0) / size) * size);
+    setReload(true);
+  }
+  function updateSize(size: number) {
+    setSize(size);
+    setReload(true);
+  }
+
   const contextValue = {
     todos,
     todoToUpdate,
@@ -136,6 +175,13 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     unselectTodo,
     sorting,
     sort,
+    size,
+    updateSize,
+    from,
+    nextPage,
+    previousPage,
+    firstPage,
+    lastPage,
   };
 
   return <TodosContext value={contextValue}>{children}</TodosContext>;

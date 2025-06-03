@@ -1,5 +1,5 @@
 import "./App.css";
-import { TodoList } from "./components/TodoList";
+import { TodoList } from "./components/TodoList/TodoList.tsx";
 import { TodosContextProvider } from "./store/todos-context";
 import { Header } from "./components/Header.tsx";
 

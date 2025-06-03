@@ -39,15 +39,30 @@ def index():
         except:
             return 'There was an issue adding the task'
     else:
+        size=25
+        offset=0
         order_by = Todo.date_created
-        sort = request.args.get('sort')
-        if sort == "content":
+        sort_param = request.args.get('sort', "date_created")
+        direction_param = request.args.get('direction', "asc")
+        size_param = request.args.get('size', "25")
+        from_param = request.args.get('from', "0")
+        if sort_param == "content":
             order_by = Todo.content
-        direction = request.args.get('direction')
-        if direction == "desc":
+        if direction_param == "desc":
             order_by = order_by.desc()
-        data = Todo.query.order_by(order_by).all()
-        return jsonify(data=data, total=len(data))
+        if size_param != "":
+            size = int(size_param)
+        if from_param != "":
+            offset = int(from_param)
+            print(size, offset, int(offset / size))
+        data = Todo.query.order_by(order_by).paginate(per_page=size, page=(int(offset / size) + 1)).items
+        total = Todo.query.count()
+
+        # text_param = request.args.get('text', "")
+        # data = Todo.query.order_by(order_by).paginate(per_page=size, page=int(offset / size))
+        # return jsonify(data=data, total=total)
+
+        return jsonify(data=data, total=total)
 @app.route('/todos/<int:todo_id>', methods=['DELETE', 'PUT', 'GET'])  # type: ignore
 def details(todo_id):
     if request.method == 'DELETE':

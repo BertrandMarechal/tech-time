@@ -1,9 +1,9 @@
 import { use } from "react";
-import { TodoListItem } from "./TodoListItem";
-import { TodosContext } from "../store/todos-context.tsx";
-import { NewTodo } from "./NewTodo.tsx";
-import { Button } from "./Button.tsx";
-import { SortingButton } from "./SortingButton.tsx";
+import { TodoListItem } from "./TodoListItem.tsx";
+import { TodosContext } from "../../store/todos-context.tsx";
+import { NewTodo } from "../NewTodo.tsx";
+import { SortingButton } from "../SortingButton.tsx";
+import { TodoListPagination } from "./TodoListPagination.tsx";
 
 export function TodoList() {
   const { todos, error, loading, todoToUpdate, unselectTodo, sort, sorting } = use(TodosContext);
@@ -41,16 +41,22 @@ export function TodoList() {
   return (
     <>
       <div className="flex flex-col gap-2">
+        <NewTodo></NewTodo>
+        Total: {todos.total}
         <div className="flex flex-row gap-2 items-center">
-          Order by:
-          <SortingButton value="date_created" onSort={() => handleSort("date_created")} currentSorting={sorting}>Date created</SortingButton>
-          <SortingButton value="content" onSort={() => handleSort("content")} currentSorting={sorting}>Content</SortingButton>
+          Order by
+          <SortingButton value="date_created" onSort={() => handleSort("date_created")} currentSorting={sorting}>
+            Date created
+          </SortingButton>
+          <SortingButton value="content" onSort={() => handleSort("content")} currentSorting={sorting}>
+            Content
+          </SortingButton>
         </div>
         {todos.data.map((todo) => (
           <TodoListItem key={todo.id} item={todo} />
         ))}
       </div>
-      <NewTodo></NewTodo>
+      <TodoListPagination></TodoListPagination>
     </>
   );
 }

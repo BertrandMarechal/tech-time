@@ -1,7 +1,7 @@
-import type { Todo } from "../models/todo.model";
+import type { Todo } from "../../models/todo.model.ts";
 import { use } from "react";
-import { TodosContext } from "../store/todos-context.tsx";
-import { Button } from "./Button.tsx";
+import { TodosContext } from "../../store/todos-context.tsx";
+import { Button } from "../Button.tsx";
 
 export function TodoListItem({ item }: { item: Todo }) {
   const { removeTodo, selectTodo } = use(TodosContext);
