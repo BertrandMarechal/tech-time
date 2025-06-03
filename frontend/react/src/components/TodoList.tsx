@@ -2,9 +2,11 @@ import { use } from "react";
 import { TodoListItem } from "./TodoListItem";
 import { TodosContext } from "../store/todos-context.tsx";
 import { NewTodo } from "./NewTodo.tsx";
+import { Button } from "./Button.tsx";
+import { SortingButton } from "./SortingButton.tsx";
 
 export function TodoList() {
-  const { todos, error, loading, todoToUpdate, unselectTodo } = use(TodosContext);
+  const { todos, error, loading, todoToUpdate, unselectTodo, sort, sorting } = use(TodosContext);
 
   if (loading) {
     return <h2>Loading...</h2>;
@@ -23,6 +25,15 @@ export function TodoList() {
   function handleCancel() {
     unselectTodo();
   }
+  function handleSort(sortOn: "date_created" | "content") {
+    let direction: "asc" | "desc" = "asc";
+    if (sorting.sort === sortOn) {
+      direction = sorting.direction === "asc" ? "desc" : "asc";
+    }
+    sort({
+      direction, sort: sortOn,
+    })
+  }
 
   if (todoToUpdate) {
     return <NewTodo saveButtonLabel="Update" todo={todoToUpdate} onCancel={handleCancel}></NewTodo>
@@ -30,6 +41,11 @@ export function TodoList() {
   return (
     <>
       <div className="flex flex-col gap-2">
+        <div className="flex flex-row gap-2 items-center">
+          Order by:
+          <SortingButton value="date_created" onSort={() => handleSort("date_created")} currentSorting={sorting}>Date created</SortingButton>
+          <SortingButton value="content" onSort={() => handleSort("content")} currentSorting={sorting}>Content</SortingButton>
+        </div>
         {todos.data.map((todo) => (
           <TodoListItem key={todo.id} item={todo} />
         ))}

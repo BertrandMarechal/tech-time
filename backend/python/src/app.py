@@ -39,7 +39,14 @@ def index():
         except:
             return 'There was an issue adding the task'
     else:
-        data = Todo.query.order_by(Todo.date_created).all()
+        order_by = Todo.date_created
+        sort = request.args.get('sort')
+        if sort == "content":
+            order_by = Todo.content
+        direction = request.args.get('direction')
+        if direction == "desc":
+            order_by = order_by.desc()
+        data = Todo.query.order_by(order_by).all()
         return jsonify(data=data, total=len(data))
 @app.route('/todos/<int:todo_id>', methods=['DELETE', 'PUT', 'GET'])  # type: ignore
 def details(todo_id):
