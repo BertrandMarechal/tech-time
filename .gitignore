@@ -1,2 +1,3 @@
 .env
 /temp
+/backend/python/src/__pycache__

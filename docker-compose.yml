@@ -2,13 +2,14 @@ services:
   postgres:
     image: "postgres:17.5-alpine"
     ports:
-      - "5434:5432"
+      - "5439:5432"
     environment:
       POSTGRES_USER: "${PG_USER}"
       POSTGRES_PASSWORD: "${PG_PASSWORD}"
       POSTGRES_DB: "${PG_DB}"
     volumes:
       - "./temp/postgresdata:/var/lib/postgresql/data"
+
   python-backend:
     build:
       context: ./backend/python
@@ -17,8 +18,14 @@ services:
       - "20701:20701"
     environment:
       - FLASK_PORT=20701
+      - DB_USER=${PG_USER}
+      - DB_PASSWORD=${PG_PASSWORD}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${PG_DB}
     volumes:
       - ./backend/python/src:/usr/src
+
   react-frontend:
     build:
       context: ./frontend/react
@@ -28,4 +35,4 @@ services:
     environment:
       - PORT=20710
     volumes:
-      - ./frontend/react/src:/usr/src
+      - ./frontend/react:/opt/app
