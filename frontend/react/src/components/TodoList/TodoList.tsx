@@ -6,7 +6,7 @@ import { TodoListPagination } from "./TodoListPagination.tsx";
 import { TodoListItems } from "./TodoListItems.tsx";
 
 export function TodoList() {
-  const { error, loading, todoToUpdate, unselectTodo, sort, sorting, filterByText, searchText } = use(TodosContext);
+  const { error, loading, todoToUpdate, unselectTodo, todos, sort, sorting, filterByText, searchText } = use(TodosContext);
 
   if (loading) {
     return <h2>Loading...</h2>;
@@ -34,10 +34,11 @@ export function TodoList() {
   function handleTextChange(e: Event) {
     filterByText((e.target as any).value);
   }
+  const hideNewTodo = !todos?.total;
   return (
     <>
       <div className="flex flex-col gap-2">
-        <NewTodo></NewTodo>
+        {!hideNewTodo && <NewTodo></NewTodo>}
         <div className="flex flex-row gap-2">
           <label htmlFor="search-text" className="text-xl">
             Search
@@ -58,6 +59,9 @@ export function TodoList() {
           </SortingButton>
           <SortingButton value="content" onSort={() => handleSort("content")} currentSorting={sorting}>
             Content
+          </SortingButton>
+          <SortingButton value="order" onSort={() => handleSort("order")} currentSorting={sorting}>
+            Order
           </SortingButton>
         </div>
         <TodoListItems></TodoListItems>

@@ -16,8 +16,8 @@ export function TodoListItems() {
   return (
     <>
       <span>Total: {todos.total}</span>
-      {todos.data.map((todo) => (
-        <TodoListItem key={todo.id} item={todo} />
+      {todos.data.map((todo, i) => (
+        <TodoListItem key={todo.id} item={todo} index={i} />
       ))}
     </>
   )

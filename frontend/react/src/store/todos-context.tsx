@@ -2,8 +2,9 @@ import { createContext, type PropsWithChildren, useEffect, useState } from "reac
 import type { Todo } from "../models/todo.model";
 import type { PaginationResults } from "../models/pagination.models";
 
+type SortFields = "date_created" | "content" | "order";
 export type SortingParameters = {
-  sort: "date_created" | "content";
+  sort: SortFields;
   direction: "asc" | "desc";
 };
 export const TodosContext = createContext<{
@@ -19,6 +20,7 @@ export const TodosContext = createContext<{
   unselectTodo: () => void;
   updateTodo: (id: number, todo: Pick<Todo, "content">) => void;
   removeTodo: (id: number) => void;
+  moveTodo: (id: number, currentOrder: number, deltaOrder: number) => void;
   sorting: SortingParameters;
   sort: (params: SortingParameters) => void;
   updateSize: (size: number) => void;
@@ -38,6 +40,7 @@ export const TodosContext = createContext<{
   unselectTodo: () => {},
   updateTodo: (_id: number, _todo: Pick<Todo, "content">) => {},
   removeTodo: (_id: number) => {},
+  moveTodo: (_id: number, _currentOrder: number, _deltaOrder: number) => {},
   sort: (_params: SortingParameters) => {},
   updateSize: (_size: number) => {},
   nextPage: () => {},
@@ -50,6 +53,7 @@ export const TodosContext = createContext<{
     direction: "asc",
   },
 });
+
 
 export function TodosContextProvider({ children }: PropsWithChildren) {
   const [todos, setTodos] = useState<PaginationResults<Todo>>();
@@ -125,6 +129,22 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     setTodoToUpdate(undefined);
   }
 
+  async function moveTodo(id: number, currentOrder: number, deltaOrder: number) {
+    const response = await fetch(`http://localhost:20701/api/todos/${id}/order`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ delta: deltaOrder, currentOrder }),
+    });
+
+    if (!response.ok) {
+      return;
+    }
+    setReload(true);
+    setTodoToUpdate(undefined);
+  }
+
   async function removeTodo(id: number) {
     const response = await fetch(`http://localhost:20701/api/todos/${id}`, {
       method: "DELETE",
@@ -143,17 +163,17 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     setTodoToUpdate(undefined);
   }
 
-  function sort(desiredSorting: { sort: "date_created" | "content"; direction: "asc" | "desc" }) {
+  function sort(desiredSorting: { sort: SortFields; direction: "asc" | "desc" }) {
     setReload(true);
     setSorting(desiredSorting);
   }
 
   function nextPage() {
-    setFrom(value => value + size);
+    setFrom((value) => value + size);
     setReload(true);
   }
   function previousPage() {
-    setFrom(value => value - size);
+    setFrom((value) => value - size);
     setReload(true);
   }
   function firstPage() {
@@ -194,6 +214,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     lastPage,
     filterByText,
     searchText,
+    moveTodo,
   };
 
   return <TodosContext value={contextValue}>{children}</TodosContext>;
