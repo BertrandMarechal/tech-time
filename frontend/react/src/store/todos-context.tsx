@@ -77,7 +77,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
           size: `${size}`,
           text: searchText,
         });
-        const response = await fetch(`http://localhost:20701/todos?${query.toString()}`);
+        const response = await fetch(`http://localhost:20701/api/todos?${query.toString()}`);
         if (!response.ok) {
           setError(await response.text());
           setReload(false);
@@ -95,7 +95,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   }, [reload, sorting, from, size]);
 
   async function addTodo(enteredTodoData: Pick<Todo, "content">) {
-    const response = await fetch("http://localhost:20701/todos", {
+    const response = await fetch("http://localhost:20701/api/todos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -110,7 +110,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   }
 
   async function updateTodo(id: number, enteredTodoData: Pick<Todo, "content">) {
-    const response = await fetch(`http://localhost:20701/todos/${id}`, {
+    const response = await fetch(`http://localhost:20701/api/todos/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -126,7 +126,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   }
 
   async function removeTodo(id: number) {
-    const response = await fetch(`http://localhost:20701/todos/${id}`, {
+    const response = await fetch(`http://localhost:20701/api/todos/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {

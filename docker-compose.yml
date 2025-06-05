@@ -1,4 +1,13 @@
 services:
+  proxy:
+    image: "haproxy:1.8-alpine"
+    ports:
+      - "20700:80"
+    volumes:
+      - "./haproxy:/usr/local/etc/haproxy:ro"
+    depends_on:
+      - python-backend
+      - react-frontend
   postgres:
     image: "postgres:17.5-alpine"
     ports:
@@ -14,6 +23,8 @@ services:
     build:
       context: ./backend/python
       dockerfile: ./Dockerfile
+    depends_on:
+      - postgres
     ports:
       - "20701:20701"
     environment:

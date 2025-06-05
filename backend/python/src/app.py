@@ -7,7 +7,7 @@ import os
 import logging
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "http://localhost:20710"}})  # allow CORS for frontend.
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost:20700"}})  # allow CORS for frontend.
 app.config[
     'SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.environ['DB_USER']}:{os.environ['DB_PASSWORD']}@{os.environ['DB_HOST']}:{os.environ['DB_PORT']}/{os.environ['DB_NAME']}"
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -27,7 +27,7 @@ class PaginationResult:
         self.data = data
 
 
-@app.route('/todos', methods=['GET', 'POST'])  # type: ignore
+@app.route('/api/todos', methods=['GET', 'POST'])  # type: ignore
 def index():
     if request.method == 'POST':
         data = request.get_json()
@@ -66,7 +66,7 @@ def index():
         # return jsonify(data=data, total=total)
 
         return jsonify(data=data, total=total)
-@app.route('/todos/<int:todo_id>', methods=['DELETE', 'PUT', 'GET'])  # type: ignore
+@app.route('/api/todos/<int:todo_id>', methods=['DELETE', 'PUT', 'GET'])  # type: ignore
 def details(todo_id):
     if request.method == 'DELETE':
         todo_to_delete = Todo.query.get_or_404(todo_id)
