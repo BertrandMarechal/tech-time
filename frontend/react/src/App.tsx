@@ -3,17 +3,18 @@ import { TodoList } from "./components/TodoList/TodoList.tsx";
 import { TodosContextProvider } from "./store/todos-context";
 import { Header } from "./components/Header.tsx";
 import { useCookies } from "react-cookie";
+import { BackendType, CookieNames, FrontendType } from "./enums.ts";
 
 function App() {
   const [cookies, setCookies] = useCookies();
-  const frontendCookie = cookies["tt-fe"];
+  const frontendCookie = cookies[CookieNames.Frontend];
   if (!frontendCookie) {
-    setCookies("tt-fe", "react");
-  } else if (frontendCookie !== "react") {
+    setCookies(CookieNames.Frontend, "react");
+  } else if (frontendCookie !== FrontendType.React) {
     document.location.reload();
   }
-  if (!cookies["tt-be"]) {
-    setCookies("tt-be", "python");
+  if (!cookies[CookieNames.Backend]) {
+    setCookies(CookieNames.Backend, BackendType.Python);
   }
   return (
     <div className="flex flex-col justify-start h-full">

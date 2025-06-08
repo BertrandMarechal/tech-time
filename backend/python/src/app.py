@@ -73,7 +73,7 @@ def index():
         # data = Todo.query.order_by(order_by).paginate(per_page=size, page=int(offset / size))
         # return jsonify(data=data, total=total)
 
-        return jsonify(data=data, total=total)
+        return jsonify(data=data, total=total, origin='python')
 @app.route('/api/todos/<int:todo_id>', methods=['DELETE', 'PUT', 'GET'])  # type: ignore
 def details(todo_id):
     if request.method == 'DELETE':
