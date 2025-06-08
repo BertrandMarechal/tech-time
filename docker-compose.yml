@@ -37,6 +37,24 @@ services:
     volumes:
       - ./backend/python/src:/usr/src
 
+  go-backend:
+    build:
+      context: ./backend/go
+      dockerfile: ./Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "20702:20702"
+    environment:
+      - PORT=20702
+      - DB_USER=${PG_USER}
+      - DB_PASSWORD=${PG_PASSWORD}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${PG_DB}
+    volumes:
+      - ./backend/go:/app
+
   react-frontend:
     build:
       context: ./frontend/react

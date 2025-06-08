@@ -2,6 +2,7 @@ import { createContext, type PropsWithChildren, useEffect, useState } from "reac
 import type { Todo } from "../models/todo.model";
 import type { PaginationResults } from "../models/pagination.models";
 
+const PORT = 20700;
 type SortFields = "date_created" | "content" | "order";
 export type SortingParameters = {
   sort: SortFields;
@@ -81,7 +82,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
           size: `${size}`,
           text: searchText,
         });
-        const response = await fetch(`http://localhost:20701/api/todos?${query.toString()}`);
+        const response = await fetch(`http://localhost:${PORT}/api/todos?${query.toString()}`);
         if (!response.ok) {
           setError(await response.text());
           setReload(false);
@@ -99,7 +100,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   }, [reload, sorting, from, size]);
 
   async function addTodo(enteredTodoData: Pick<Todo, "content">) {
-    const response = await fetch("http://localhost:20701/api/todos", {
+    const response = await fetch("http://localhost:${PORT}/api/todos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,7 +115,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   }
 
   async function updateTodo(id: number, enteredTodoData: Pick<Todo, "content">) {
-    const response = await fetch(`http://localhost:20701/api/todos/${id}`, {
+    const response = await fetch(`http://localhost:${PORT}/api/todos/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -130,7 +131,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   }
 
   async function moveTodo(id: number, currentOrder: number, deltaOrder: number) {
-    const response = await fetch(`http://localhost:20701/api/todos/${id}/order`, {
+    const response = await fetch(`http://localhost:${PORT}/api/todos/${id}/order`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -146,7 +147,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   }
 
   async function removeTodo(id: number) {
-    const response = await fetch(`http://localhost:20701/api/todos/${id}`, {
+    const response = await fetch(`http://localhost:${PORT}/api/todos/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {
