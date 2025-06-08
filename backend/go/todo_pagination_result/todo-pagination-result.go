@@ -6,11 +6,11 @@ import (
 
 type TodoPaginationResult struct {
 	Data      []todo.Todo   `json:"data"`
-	Total     int  `json:"total"`
+	Total     int64  `json:"total"`
 	Origin    string  `json:"origin"`
 }
 
-func New(data []todo.Todo, total int) (TodoPaginationResult, error) {
+func New(data []todo.Todo, total int64) (TodoPaginationResult, error) {
 	return TodoPaginationResult{
 		Data: data,
 		Total: total,
