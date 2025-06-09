@@ -35,7 +35,7 @@ export function TodoListItem({ item, index }: { item: Todo; index: number }) {
   }
   const {total} = todos;
 
-  const date = new Date(item.date_created);
+  const date = new Date(item.dateCreated);
   const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
   const itemIndex = from + index + 1;
   const moveOneUpDisabled = from === 0 && index === 0;

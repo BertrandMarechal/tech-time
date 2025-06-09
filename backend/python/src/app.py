@@ -17,8 +17,8 @@ db = SQLAlchemy(app)
 class Todo(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     content: str = db.Column(db.String(250))
-    date_created: datetime = db.Column(db.DateTime, default=datetime.utcnow)
-    date_updated: datetime = db.Column(db.DateTime, default=datetime.utcnow)
+    dateCreated: datetime = db.Column("date_created", db.DateTime, default=datetime.utcnow)
+    dateUpdated: datetime = db.Column("date_updated", db.DateTime, default=datetime.utcnow)
     order: int = db.Column(db.Integer)
 
     # @validates("content")
@@ -52,7 +52,7 @@ def index():
     else:
         size=25
         offset=0
-        order_by = Todo.date_created
+        order_by = Todo.dateCreated
         sort_param = request.args.get('sort', "date_created")
         direction_param = request.args.get('direction', "asc")
         size_param = request.args.get('size', "25")
@@ -99,7 +99,7 @@ def details(todo_id):
         data = request.get_json()
         todo_to_update = Todo.query.get_or_404(todo_id)
         todo_to_update.content = data['content']
-        todo_to_update.date_updated = datetime.utcnow()
+        todo_to_update.dateUpdated = datetime.utcnow()
         try:
             db.session.commit()
             return "ok"
