@@ -33,7 +33,8 @@ export function TodoListItem({ item, index }: { item: Todo; index: number }) {
       moveTodo(item.id, item.order, -1 * delta);
     }
   }
-  const {total} = todos;
+
+  const { total } = todos;
 
   const date = new Date(item.dateCreated);
   const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
@@ -44,7 +45,7 @@ export function TodoListItem({ item, index }: { item: Todo; index: number }) {
   const moveTwoDownDisabled = itemIndex > total - 2;
 
   return (
-    <div className="flex flex-row gap-2 items-center justify-between hover:bg-stone-100 rounded p-2 transition-all duration-300 group">
+    <div className="flex flex-row gap-2 items-center justify-between border-stone-800 hover:border-stone-400 border-1 rounded p-2 transition-all duration-300 group">
       <div className="flex flex-col items-start">
         <h2 className="text-xl">
           {isSortingOnOrder && <span className="text-md text-stone-400">{item.order} - </span>}
@@ -52,29 +53,33 @@ export function TodoListItem({ item, index }: { item: Todo; index: number }) {
         </h2>
         <h2 className="text-sm text-stone-400">{formattedDate}</h2>
       </div>
-      <div className="flex flex-row gap-2 ml-4  opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-        {isSortingOnOrder && (
-          <Button onClick={() => handleMove(2)} disabled={moveTwoDownDisabled}>
-            <ChevronDoubleDownIcon className={`size-4 ${moveTwoDownDisabled ? "text-stone-700" : "text-blue-500"}`} />
-          </Button>
-        )}
-        {isSortingOnOrder && (
-          <Button onClick={() => handleMove(1)} disabled={moveOneDownDisabled}>
-            <ChevronDownIcon className={`size-4 ${moveOneDownDisabled ? "text-stone-700" : "text-blue-500"}`} />
-          </Button>
-        )}
-        {isSortingOnOrder && (
-          <Button onClick={() => handleMove(-1)} disabled={moveOneUpDisabled}>
-            <ChevronUpIcon className={`size-4 ${moveOneUpDisabled ? "text-stone-700" : "text-blue-500"}`} />
-          </Button>
-        )}
-        {isSortingOnOrder && (
-          <Button onClick={() => handleMove(-2)} disabled={moveTwoUpDisabled}>
-            <ChevronDoubleUpIcon className={`size-4 ${moveTwoUpDisabled ? "text-stone-700" : "text-blue-500"}`} />
-          </Button>
-        )}
-        <Button onClick={handleDelete}>Delete</Button>
-        <Button onClick={handleUpdate}>Update</Button>
+      <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-row gap-2 ml-4  opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {isSortingOnOrder && (
+            <Button onClick={() => handleMove(2)} disabled={moveTwoDownDisabled}>
+              <ChevronDoubleDownIcon className={`size-4 ${moveTwoDownDisabled ? "text-stone-700" : "text-amber-400"}`} />
+            </Button>
+          )}
+          {isSortingOnOrder && (
+            <Button onClick={() => handleMove(1)} disabled={moveOneDownDisabled}>
+              <ChevronDownIcon className={`size-4 ${moveOneDownDisabled ? "text-stone-700" : "text-amber-400"}`} />
+            </Button>
+          )}
+          {isSortingOnOrder && (
+            <Button onClick={() => handleMove(-1)} disabled={moveOneUpDisabled}>
+              <ChevronUpIcon className={`size-4 ${moveOneUpDisabled ? "text-stone-700" : "text-amber-400"}`} />
+            </Button>
+          )}
+          {isSortingOnOrder && (
+            <Button onClick={() => handleMove(-2)} disabled={moveTwoUpDisabled}>
+              <ChevronDoubleUpIcon className={`size-4 ${moveTwoUpDisabled ? "text-stone-700" : "text-amber-400"}`} />
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-row gap-2 ml-4  opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <Button onClick={handleDelete}>Delete</Button>
+          <Button onClick={handleUpdate}>Update</Button>
+        </div>
       </div>
     </div>
   );

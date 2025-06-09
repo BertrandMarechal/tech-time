@@ -11,7 +11,7 @@ export function Navbar({ title }: { title: string }) {
   }
   const selectedBackend = cookies[CookieNames.Backend];
   return (
-    <nav className="absolute left-0 right-0 top-0 flex justify-between p-2 bg-amber-700 h-14">
+    <nav className="sticky top-0 z-50 left-0 right-0 flex justify-between items-center p-2 bg-amber-700 h-14">
       <ul className="flex items-center">
         <li className="text-xl ml-2 text-white font-semibold">{title}</li>
       </ul>

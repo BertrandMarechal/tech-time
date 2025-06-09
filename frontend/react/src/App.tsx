@@ -1,10 +1,10 @@
-import "./App.css";
 import { TodoList } from "./components/TodoList/TodoList.tsx";
 import { TodosContextProvider } from "./store/todos-context";
 import { Header } from "./components/Header.tsx";
 import { useCookies } from "react-cookie";
 import { BackendType, CookieNames, FrontendType } from "./enums.ts";
 import { Navbar } from "./components/Navbar.tsx";
+import classes from "./App.module.css";
 
 function App() {
   const [cookies, setCookies] = useCookies();
@@ -21,11 +21,13 @@ function App() {
     <>
       <TodosContextProvider>
         <Navbar title="Todos"></Navbar>
-        <div className="flex flex-col justify-start h-full mt-14">
-          <Header></Header>
-          <main>
-            <TodoList></TodoList>
-          </main>
+        <div className="flex flex-row justify-center w-full">
+          <div className={`${classes["main-container"]} max-w-[1280px] relative flex flex-col justify-start items-center mt-8`}>
+            <Header></Header>
+            <main className="mb-6">
+              <TodoList></TodoList>
+            </main>
+          </div>
         </div>
       </TodosContextProvider>
     </>

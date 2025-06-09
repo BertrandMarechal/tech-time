@@ -15,10 +15,13 @@ export function TodoListItems() {
   }
   return (
     <>
-      <span>Total: {todos.total}</span>
+      <div className="flex flex-row gap-2">
+        <span className="text-stone-500">Total:</span>
+        <span>{todos.total}</span>
+      </div>
       {todos.data.map((todo, i) => (
         <TodoListItem key={todo.id} item={todo} index={i} />
       ))}
     </>
-  )
+  );
 }

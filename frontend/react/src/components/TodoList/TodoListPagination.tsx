@@ -32,15 +32,17 @@ export function TodoListPagination() {
   }
 
   return (
-    <div className="flex flex-col gap-2 mt-2">
+    <div className="flex flex-col gap-4 mt-4 items-center">
       <div className="flex flex-row gap-2 items-center">
         {showPaginationButtons && <Button disabled={isOnFirst} onClick={handleFirst}>First</Button>}
         {showPaginationButtons && <Button disabled={!enablePrevious} onClick={handlePrevious}>Previous</Button>}
         {showPaginationButtons && <Button disabled={!enableNext} onClick={handleNext}>Next</Button>}
         {showPaginationButtons && <Button disabled={isOnLast} onClick={handleLast}>Last</Button>}
       </div>
-      <div className="flex flex-row gap-2 items-center">
-        Records per page
+      <div className="flex flex-row gap-2 items-center mb-6">
+        <span className="text-stone-500">
+          Records per page:
+        </span>
         <SizeButton value={5} onSet={() => handleSetSize(5)} currentSize={size}>
           5
         </SizeButton>

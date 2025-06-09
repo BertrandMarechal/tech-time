@@ -10,7 +10,7 @@ export function SizeButton({
   const isSelected = currentSize === value;
 
   return (
-    <Button className={isSelected ? "border" : ""} onClick={onSet}>
+    <Button className={isSelected ? "border-amber-500" : ""} onClick={onSet}>
       {children}
     </Button>
   );
