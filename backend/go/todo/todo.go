@@ -31,18 +31,33 @@ func New(content string) (Todo, error) {
 
 	return todo, nil
 }
+// todo: add a proper transaction or error management as we do 2 operations
+func DeleteTodo(todoId string) error {
+	var order int64
+	// we first gt the current order of the todo we are trying to delete
+	rows, err := db.DB.Query("SELECT \"order\" FROM todo WHERE id = $1", todoId)
 
-// func (todo Todo) Save() error {
-// 	fileName := "todo.json"
+	if err != nil {
+		panic(err)
+	}
+	for rows.Next() {
+		if err := rows.Scan(&order); err != nil {
+			panic(err)
+		}
+	}
 
-// 	json, err := json.Marshal(todo)
-// 	if err != nil {
-// 		return err
-// 	}
+	// we delete the record
+	_, err = db.DB.Query("DELETE FROM todo WHERE id = $1", todoId)
 
-// 	return os.WriteFile(fileName, json, 0644)
-// }
+	if err != nil {
+		panic(err)
+	}
 
-// func (todo Todo) Display() {
-// 	fmt.Printf("Todo:\n\n%v\n", todo.Text)
-// }
+	// we update the records that will move up as the item is deleted
+	_, err = db.DB.Query("UPDATE todo SET \"order\" = \"order\" - 1 WHERE \"order\" > $1", order)
+
+	if err != nil {
+		panic(err)
+	}
+	return nil
+}

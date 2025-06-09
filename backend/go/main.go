@@ -19,6 +19,7 @@ func main() {
 	router := gin.Default()
 	router.GET("/api/todos", getTodos)
 	router.POST("/api/todos", createTodo)
+	router.DELETE("/api/todos/:todoId", deleteTodo)
 
 	var port = os.Getenv("PORT")
 	router.Use(cors.New(cors.Config{

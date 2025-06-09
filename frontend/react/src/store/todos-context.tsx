@@ -100,7 +100,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   }, [reload, sorting, from, size]);
 
   async function addTodo(enteredTodoData: Pick<Todo, "content">) {
-    const response = await fetch("http://localhost:${PORT}/api/todos", {
+      const response = await fetch(`http://localhost:${PORT}/api/todos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

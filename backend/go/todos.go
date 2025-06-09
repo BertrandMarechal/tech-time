@@ -81,3 +81,16 @@ func createTodo(c *gin.Context) {
 	// return created object
 	c.IndentedJSON(http.StatusCreated, newTodo)
 }
+
+func deleteTodo(c *gin.Context) {
+    todoId := c.Param("todoId")
+
+	// add validation
+	err:= todo.DeleteTodo(todoId)
+	if err != nil {
+		// return relevant error
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Could not delete todo"})
+	}
+	// return 204
+	c.IndentedJSON(http.StatusNoContent, gin.H{})
+}
