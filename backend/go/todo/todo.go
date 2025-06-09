@@ -61,3 +61,19 @@ func DeleteTodo(todoId string) error {
 	}
 	return nil
 }
+
+func UpdateTodo(todoId string, content string) (Todo, error) {
+	var todo Todo
+	rows, err := db.DB.Query("UPDATE todo SET date_updated = NOW(), content = $2 where id = $1 RETURNING id, content, \"order\", date_created, date_updated", todoId, content)
+
+	if err != nil {
+		panic(err)
+	}
+	for rows.Next() {
+		if err := rows.Scan(&todo.ID, &todo.Content, &todo.Order, &todo.DateCreated, &todo.DateUpdated); err != nil {
+			panic(err)
+		}
+	}
+
+	return todo, nil
+}

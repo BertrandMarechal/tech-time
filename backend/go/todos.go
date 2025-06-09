@@ -102,3 +102,20 @@ func deleteTodo(c *gin.Context) {
 	// return 204
 	c.IndentedJSON(http.StatusNoContent, gin.H{})
 }
+
+
+func updateTodo(c *gin.Context) {
+    todoId := c.Param("todoId")
+	var requestBody TodoRequestBody
+   if err := c.BindJSON(&requestBody); err != nil {
+		// return bad request
+		panic(err)
+   }
+	updatedTodo, err:= todo.UpdateTodo(todoId, requestBody.Content)
+	if err != nil {
+		// return relevant error
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Could not update todo"})
+	}
+	// return updated object
+	c.IndentedJSON(http.StatusOK, updatedTodo)
+}

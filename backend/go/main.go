@@ -20,6 +20,7 @@ func main() {
 	router.GET("/api/todos", getTodos)
 	router.POST("/api/todos", createTodo)
 	router.DELETE("/api/todos/:todoId", deleteTodo)
+	router.PUT("/api/todos/:todoId", updateTodo)
 
 	var port = os.Getenv("PORT")
 	router.Use(cors.New(cors.Config{
