@@ -1,6 +1,8 @@
 import { createContext, type PropsWithChildren, useEffect, useState } from "react";
 import type { Todo } from "../models/todo.model";
 import type { PaginationResults } from "../models/pagination.models";
+import { BackendType, CookieNames } from "../enums.ts";
+import { useCookies } from "react-cookie";
 
 const PORT = 20700;
 type SortFields = "date_created" | "content" | "order";
@@ -30,6 +32,7 @@ export const TodosContext = createContext<{
   firstPage: () => void;
   lastPage: () => void;
   filterByText: (text: string) => void;
+  setBackend: (backend: BackendType) => void;
 }>({
   size: 25,
   from: 0,
@@ -49,6 +52,7 @@ export const TodosContext = createContext<{
   firstPage: () => {},
   lastPage: () => {},
   filterByText: (_text: string) => {},
+  setBackend: (_backend: BackendType) => {},
   sorting: {
     sort: "date_created",
     direction: "asc",
@@ -69,6 +73,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     sort: "date_created",
     direction: "asc",
   });
+  const [_, setCookies] = useCookies();
 
   useEffect(() => {
     async function loadTodos() {
@@ -193,6 +198,10 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     setSearchText(text);
     setReload(true);
   }
+  function setBackend(backend: BackendType) {
+    setCookies(CookieNames.Backend, backend);
+    setReload(true);
+  }
 
   const contextValue = {
     todos,
@@ -216,6 +225,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     filterByText,
     searchText,
     moveTodo,
+    setBackend,
   };
 
   return <TodosContext value={contextValue}>{children}</TodosContext>;
