@@ -4,6 +4,7 @@ import { TodosContextProvider } from "./store/todos-context";
 import { Header } from "./components/Header.tsx";
 import { useCookies } from "react-cookie";
 import { BackendType, CookieNames, FrontendType } from "./enums.ts";
+import { Navbar } from "./components/Navbar.tsx";
 
 function App() {
   const [cookies, setCookies] = useCookies();
@@ -17,14 +18,17 @@ function App() {
     setCookies(CookieNames.Backend, BackendType.Python);
   }
   return (
-    <div className="flex flex-col justify-start h-full">
-      <Header></Header>
-      <main>
-        <TodosContextProvider>
-          <TodoList></TodoList>
-        </TodosContextProvider>
-      </main>
-    </div>
+    <>
+      <TodosContextProvider>
+        <Navbar title="Todos"></Navbar>
+        <div className="flex flex-col justify-start h-full mt-14">
+          <Header></Header>
+          <main>
+            <TodoList></TodoList>
+          </main>
+        </div>
+      </TodosContextProvider>
+    </>
   );
 }
 

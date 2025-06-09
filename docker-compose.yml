@@ -66,3 +66,8 @@ services:
     volumes:
       - /app/node_modules
       - ./frontend/react:/opt/app
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    ports:
+      - "20720:5678"
