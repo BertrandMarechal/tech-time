@@ -18,6 +18,7 @@ func main() {
 
 	router := gin.Default()
 	router.GET("/api/todos", getTodos)
+	router.DELETE("/api/todos", deleteTodos)
 	router.POST("/api/todos", createTodo)
 	router.DELETE("/api/todos/:todoId", deleteTodo)
 	router.PUT("/api/todos/:todoId", updateTodo)

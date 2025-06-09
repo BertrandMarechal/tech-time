@@ -57,6 +57,17 @@ func DeleteTodo(todoId string) error {
 	return nil
 }
 
+// Delete all todos
+func DeleteTodos() error {
+	// we delete the record
+	_, err := db.DB.Query("DELETE FROM todo WHERE 1 = 1")
+
+	if err != nil {
+		panic(err)
+	}
+	return nil
+}
+
 func UpdateTodo(todoId string, content string) (Todo, error) {
 	var todo Todo
 	rows, err := db.DB.Query("UPDATE todo SET date_updated = NOW(), content = $2 where id = $1 RETURNING id, content, \"order\", date_created, date_updated", todoId, content)

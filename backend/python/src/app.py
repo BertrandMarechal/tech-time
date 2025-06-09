@@ -33,7 +33,7 @@ class PaginationResult:
         self.data = data
 
 
-@app.route('/api/todos', methods=['GET', 'POST'])  # type: ignore
+@app.route('/api/todos', methods=['GET', 'POST', 'DELETE'])  # type: ignore
 def index():
     if request.method == 'POST':
         data = request.get_json()
@@ -46,9 +46,13 @@ def index():
         try:
             db.session.add(todo)
             db.session.commit()
-            return "ok"
+            return jsonify(todo), 201
         except:
             return 'There was an issue adding the task', 400
+    elif request.method == 'DELETE':
+        Todo.query.delete()
+        db.session.commit()
+        return ('', 204)
     else:
         size=25
         offset=0
@@ -65,17 +69,24 @@ def index():
             order_by = Todo.order
         if direction_param == "desc":
             order_by = order_by.desc()
-        if size_param != "":
-            size = int(size_param)
         if from_param != "":
             offset = int(from_param)
+        if size_param != "":
+            if size_param == "-1":
+                size = None
+                offset = None
+            else:
+                size = int(size_param)
         if text_param != "":
             query = query.filter(Todo.content.ilike(f"%{text_param}%"))
         total = query.count()
         if total == 0:
             return jsonify(data=[], total=total, origin='python')
 
-        data = query.order_by(order_by).paginate(per_page=size, page=(int(offset / size) + 1)).items
+        if (size == None):
+            data = query.order_by(order_by).all()
+        else:
+            data = query.order_by(order_by).paginate(per_page=size, page=(int(offset / size) + 1)).items
         return jsonify(data=data, total=total, origin='python')
 @app.route('/api/todos/<int:todo_id>', methods=['DELETE', 'PUT', 'GET'])  # type: ignore
 def details(todo_id):
@@ -86,15 +97,15 @@ def details(todo_id):
             # If a record is deleted, we need to move the other ones
             Todo.query.filter(
                 Todo.order > current_order
-            ).update({"order": Todo.order - 1, "date_updated": datetime.utcnow()})
+            ).update({"order": Todo.order - 1, "dateUpdated": datetime.utcnow()})
             db.session.delete(todo_to_delete)
             db.session.commit()
-            return "ok"
+            return "ok", 204
         except:
             return 'There was an issue removing the task'
     elif request.method == 'GET':
-        todo_to_get = Todo.query.get_or_404(todo_id)
-        return jsonify(todo_to_get)
+        todo = Todo.query.get_or_404(todo_id)
+        return jsonify(todo), 200
     else:
         data = request.get_json()
         todo_to_update = Todo.query.get_or_404(todo_id)
@@ -102,7 +113,8 @@ def details(todo_id):
         todo_to_update.dateUpdated = datetime.utcnow()
         try:
             db.session.commit()
-            return "ok"
+            todo = Todo.query.get_or_404(todo_id)
+            return jsonify(todo), 200
         except:
             logging.exception("message")
             return 'There was an issue updating the task'
@@ -118,7 +130,7 @@ def order(todo_id):
 
     # We now need to update the order of the items around the record.
     if order_delta > 0:
-        # If the delta is superior to 0, we need to shift the records between the current order and the target one by - delta
+        # If the delta is superior to 0, we need to shift the records between the current order and the target one by -1
         Todo.query.filter(
             Todo.order.between(current_order + 1, current_order + order_delta)
         ).update({"order": Todo.order - 1, "date_updated": datetime.utcnow()})
@@ -126,7 +138,7 @@ def order(todo_id):
         todo_to_update.order = current_order + order_delta
         todo_to_update.date_updated = datetime.utcnow()
     elif order_delta < 0:
-        # If the delta is inferior to 0, we need to shift the records between the current order and the target one by - delta
+        # If the delta is inferior to 0, we need to shift the records between the current order and the target one by 1 
         Todo.query.filter(
             Todo.order.between(current_order + order_delta, current_order - 1)
         ).update({"order": Todo.order + 1, "date_updated": datetime.utcnow()})
@@ -137,7 +149,8 @@ def order(todo_id):
         return 'Bad request', 400
     try:
         db.session.commit()
-        return "ok"
+        todo = Todo.query.get_or_404(todo_id)
+        return jsonify(todo), 200
     except:
         logging.exception("message")
         return "There was an issue updating the task's order"

@@ -51,7 +51,12 @@ func getTodos(c *gin.Context) {
 
 	var todos []todo.Todo
 
-	rows, err = db.DB.Query("SELECT id, content, \"order\", date_created, date_updated from todo where ('' = $4 or content ilike '%' || $4 || '%') order by case when 'content asc' = $1 then content end asc, case when 'order asc' = $1 then \"order\" end asc, case when 'date_created asc' = $1 then \"date_created\" end asc, case when 'content desc' = $1 then content end desc, case when 'order desc' = $1 then \"order\" end desc, case when 'date_created desc' = $1 then \"date_created\" end desc limit $2 offset $3", sortAndDirection, size, from, text)
+	if size == "-1" {
+		rows, err = db.DB.Query("SELECT id, content, \"order\", date_created, date_updated from todo where ('' = $2 or content ilike '%' || $2 || '%') order by case when 'content asc' = $1 then content end asc, case when 'order asc' = $1 then \"order\" end asc, case when 'date_created asc' = $1 then \"date_created\" end asc, case when 'content desc' = $1 then content end desc, case when 'order desc' = $1 then \"order\" end desc, case when 'date_created desc' = $1 then \"date_created\" end desc", sortAndDirection, text)
+	} else {
+		rows, err = db.DB.Query("SELECT id, content, \"order\", date_created, date_updated from todo where ('' = $4 or content ilike '%' || $4 || '%') order by case when 'content asc' = $1 then content end asc, case when 'order asc' = $1 then \"order\" end asc, case when 'date_created asc' = $1 then \"date_created\" end asc, case when 'content desc' = $1 then content end desc, case when 'order desc' = $1 then \"order\" end desc, case when 'date_created desc' = $1 then \"date_created\" end desc limit $2 offset $3", sortAndDirection, size, from, text)
+	}
+	
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not get todos"})
@@ -78,14 +83,17 @@ func getTodos(c *gin.Context) {
 
 func createTodo(c *gin.Context) {
 	var requestBody TodoRequestBody
+	fmt.Println(requestBody)
    if err := c.BindJSON(&requestBody); err != nil {
 		// return bad request
 		panic(err)
+		return;
    }
 	newTodo, err:= todo.New(requestBody.Content)
 	if err != nil {
 		// return relevant error
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Could not create todo"})
+		return;
 	}
 	// return created object
 	c.IndentedJSON(http.StatusCreated, newTodo)
@@ -99,6 +107,16 @@ func deleteTodo(c *gin.Context) {
 	if err != nil {
 		// return relevant error
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Could not delete todo"})
+	}
+	// return 204
+	c.IndentedJSON(http.StatusNoContent, gin.H{})
+}
+
+func deleteTodos(c *gin.Context) {
+	err:= todo.DeleteTodos()
+	if err != nil {
+		// return relevant error
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Could not delete todos"})
 	}
 	// return 204
 	c.IndentedJSON(http.StatusNoContent, gin.H{})
