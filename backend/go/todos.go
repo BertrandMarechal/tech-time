@@ -6,12 +6,15 @@ import (
 	"net/http"
 	"go-backend/todo"
 	"go-backend/todo_pagination_result"
+	"go-backend/db"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
-
+type TodoRequestBody struct {
+    Content string
+}
 
 func getTodos(c *gin.Context) {
     size := c.DefaultQuery("size", "25")
@@ -25,8 +28,7 @@ func getTodos(c *gin.Context) {
 
 	fmt.Printf("sortAndDirection: %s", sortAndDirection)
 
-	// rows, err := DB.Query("SELECT id, content, \"order\", date_created, date_updated from todo where ('' = '?' or content ilike '%?%') order ? limit ? offset ?", text, text, sortAndDirection, size, from)
-	rows, err := DB.Query("SELECT id, content, \"order\", date_created, date_updated from todo where ('' = $4 or content ilike '%' || $4 || '%') order by case when 'content asc' = $1 then content end asc, case when 'order asc' = $1 then \"order\" end asc, case when 'date_created asc' = $1 then \"date_created\" end asc, case when 'content desc' = $1 then content end desc, case when 'order desc' = $1 then \"order\" end desc, case when 'date_created desc' = $1 then \"date_created\" end desc limit $2 offset $3", sortAndDirection, size, from, text)
+	rows, err := db.DB.Query("SELECT id, content, \"order\", date_created, date_updated from todo where ('' = $4 or content ilike '%' || $4 || '%') order by case when 'content asc' = $1 then content end asc, case when 'order asc' = $1 then \"order\" end asc, case when 'date_created asc' = $1 then \"date_created\" end asc, case when 'content desc' = $1 then content end desc, case when 'order desc' = $1 then \"order\" end desc, case when 'date_created desc' = $1 then \"date_created\" end desc limit $2 offset $3", sortAndDirection, size, from, text)
 
 
 	if err != nil {
@@ -42,7 +44,7 @@ func getTodos(c *gin.Context) {
 		todos = append(todos, todo)
 	}
 
-	rows, err = DB.Query("SELECT count(*) as \"total\" from todo where ('' = $1 or content ilike '%' || $1 || '%')", text)
+	rows, err = db.DB.Query("SELECT count(*) as \"total\" from todo where ('' = $1 or content ilike '%' || $1 || '%')", text)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not get todos"})
 		panic(err)
@@ -50,15 +52,32 @@ func getTodos(c *gin.Context) {
 	var total int64
 	for rows.Next() {
 		if err = rows.Scan(&total); err != nil {
+			// return relevant error
 			panic(err)
 		}
 	}
 
 	result, err:= todo_pagination_result.New(todos, total)
 	if err != nil {
+		// return relevant error
 		panic(err)
 	}
 	
 
 	c.IndentedJSON(http.StatusOK, result)
+}
+
+func createTodo(c *gin.Context) {
+	var requestBody TodoRequestBody
+   if err := c.BindJSON(&requestBody); err != nil {
+		// return bad request
+		panic(err)
+   }
+	newTodo, err:= todo.New(requestBody.Content)
+	if err != nil {
+		// return relevant error
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Could not create todo"})
+	}
+	// return created object
+	c.IndentedJSON(http.StatusCreated, newTodo)
 }

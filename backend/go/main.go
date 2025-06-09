@@ -6,17 +6,19 @@ import (
 
 	"github.com/gin-gonic/gin"
     "github.com/gin-contrib/cors"
+	"go-backend/db"
 )
 
 func main() {
-	err := OpenDatabase()
+	err := db.OpenDatabase()
 	if err != nil {
 		panic(err)
 	}
-	defer CloseDatabase()
+	defer db.CloseDatabase()
 
 	router := gin.Default()
 	router.GET("/api/todos", getTodos)
+	router.POST("/api/todos", createTodo)
 
 	var port = os.Getenv("PORT")
 	router.Use(cors.New(cors.Config{
