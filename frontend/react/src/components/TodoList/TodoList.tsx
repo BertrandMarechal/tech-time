@@ -6,6 +6,7 @@ import { TodoListPagination } from "./TodoListPagination.tsx";
 import { TodoListItems } from "./TodoListItems.tsx";
 import { EditTodo } from "../EditTodo.tsx";
 
+// todo need to fix the behaviour of the search field
 export function TodoList() {
   const { error, loading, todoToUpdate, unselectTodo, todos, sort, sorting, filterByText, searchText } = use(TodosContext);
 

@@ -2,7 +2,14 @@ import type { Todo } from "../../models/todo.model.ts";
 import { use } from "react";
 import { TodosContext } from "../../store/todos-context.tsx";
 import { Button } from "../Button.tsx";
-import { ChevronUpIcon, ChevronDoubleDownIcon, ChevronDownIcon, ChevronDoubleUpIcon } from "@heroicons/react/24/solid";
+import {
+  ChevronUpIcon,
+  ChevronDoubleDownIcon,
+  ChevronDownIcon,
+  ChevronDoubleUpIcon,
+  PencilIcon,
+  TrashIcon,
+} from "@heroicons/react/24/solid";
 
 export function TodoListItem({ item, index }: { item: Todo; index: number }) {
   const {
@@ -53,7 +60,7 @@ export function TodoListItem({ item, index }: { item: Todo; index: number }) {
         </h2>
         <h2 className="text-sm text-stone-400">{formattedDate}</h2>
       </div>
-      <div className="flex flex-col items-end gap-2">
+      <div className="flex flex-col items-end justify-center gap-2">
         <div className="flex flex-row gap-2 ml-4  opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           {isSortingOnOrder && (
             <Button onClick={() => handleMove(2)} disabled={moveTwoDownDisabled}>
@@ -77,8 +84,16 @@ export function TodoListItem({ item, index }: { item: Todo; index: number }) {
           )}
         </div>
         <div className="flex flex-row gap-2 ml-4  opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <Button onClick={handleDelete}>Delete</Button>
-          <Button onClick={handleUpdate}>Update</Button>
+          <Button onClick={handleDelete}>
+            <div className="flex flex-col items-center justify-center p-2">
+              <TrashIcon className="size-4"></TrashIcon>
+            </div>
+          </Button>
+          <Button onClick={handleUpdate}>
+            <div className="flex flex-col items-center justify-center p-2">
+              <PencilIcon className="size-4"></PencilIcon>
+            </div>
+          </Button>
         </div>
       </div>
     </div>
