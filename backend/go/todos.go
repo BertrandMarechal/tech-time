@@ -24,12 +24,33 @@ func getTodos(c *gin.Context) {
     text := c.DefaultQuery("text", "")
 	sortAndDirection := fmt.Sprintf("%s %s", sort, direction)
 
+	rows, err := db.DB.Query("SELECT count(*) as \"total\" from todo where ('' = $1 or content ilike '%' || $1 || '%')", text)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not get todos count"})
+		panic(err)
+	}
+	var total int64
+	for rows.Next() {
+		if err = rows.Scan(&total); err != nil {
+			// return relevant error
+			panic(err)
+		}
+	}
+
+	if total == 0 {
+		result, err:= todo_pagination_result.New([]todo.Todo{}, total)
+		if err != nil {
+			panic(err)
+		}
+		c.IndentedJSON(http.StatusOK, result)
+		return
+	}
+
 	var todos []todo.Todo
 
 	fmt.Printf("sortAndDirection: %s", sortAndDirection)
 
-	rows, err := db.DB.Query("SELECT id, content, \"order\", date_created, date_updated from todo where ('' = $4 or content ilike '%' || $4 || '%') order by case when 'content asc' = $1 then content end asc, case when 'order asc' = $1 then \"order\" end asc, case when 'date_created asc' = $1 then \"date_created\" end asc, case when 'content desc' = $1 then content end desc, case when 'order desc' = $1 then \"order\" end desc, case when 'date_created desc' = $1 then \"date_created\" end desc limit $2 offset $3", sortAndDirection, size, from, text)
-
+	rows, err = db.DB.Query("SELECT id, content, \"order\", date_created, date_updated from todo where ('' = $4 or content ilike '%' || $4 || '%') order by case when 'content asc' = $1 then content end asc, case when 'order asc' = $1 then \"order\" end asc, case when 'date_created asc' = $1 then \"date_created\" end asc, case when 'content desc' = $1 then content end desc, case when 'order desc' = $1 then \"order\" end desc, case when 'date_created desc' = $1 then \"date_created\" end desc limit $2 offset $3", sortAndDirection, size, from, text)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not get todos"})
@@ -42,19 +63,6 @@ func getTodos(c *gin.Context) {
 			panic(err)
 		}
 		todos = append(todos, todo)
-	}
-
-	rows, err = db.DB.Query("SELECT count(*) as \"total\" from todo where ('' = $1 or content ilike '%' || $1 || '%')", text)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Could not get todos"})
-		panic(err)
-	}
-	var total int64
-	for rows.Next() {
-		if err = rows.Scan(&total); err != nil {
-			// return relevant error
-			panic(err)
-		}
 	}
 
 	result, err:= todo_pagination_result.New(todos, total)

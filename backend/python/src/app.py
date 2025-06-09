@@ -21,6 +21,11 @@ class Todo(db.Model):
     date_updated: datetime = db.Column(db.DateTime, default=datetime.utcnow)
     order: int = db.Column(db.Integer)
 
+    # @validates("content")
+    # def notEmpty(self, key, content):
+    #     if len(content.strip()) == 0:
+    #         raise TypeError("content must have a value")
+
 
 class PaginationResult:
     def __init__(self, total, data):
@@ -43,7 +48,7 @@ def index():
             db.session.commit()
             return "ok"
         except:
-            return 'There was an issue adding the task'
+            return 'There was an issue adding the task', 400
     else:
         size=25
         offset=0
@@ -66,13 +71,11 @@ def index():
             offset = int(from_param)
         if text_param != "":
             query = query.filter(Todo.content.ilike(f"%{text_param}%"))
-        data = query.order_by(order_by).paginate(per_page=size, page=(int(offset / size) + 1)).items
         total = query.count()
+        if total == 0:
+            return jsonify(data=[], total=total, origin='python')
 
-        # text_param = request.args.get('text', "")
-        # data = Todo.query.order_by(order_by).paginate(per_page=size, page=int(offset / size))
-        # return jsonify(data=data, total=total)
-
+        data = query.order_by(order_by).paginate(per_page=size, page=(int(offset / size) + 1)).items
         return jsonify(data=data, total=total, origin='python')
 @app.route('/api/todos/<int:todo_id>', methods=['DELETE', 'PUT', 'GET'])  # type: ignore
 def details(todo_id):
