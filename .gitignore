@@ -4,6 +4,7 @@
 .idea/
 /backend/python/.idea/
 /frontend/react/.idea/
+/frontend/vue/.idea/
 /backend/go/tmp/
 /test/node_modules/
 /test/.idea/

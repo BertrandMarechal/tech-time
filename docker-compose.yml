@@ -60,12 +60,24 @@ services:
       context: ./frontend/react
       dockerfile: ./Dockerfile
     ports:
-      - "20710:20710"
+      - "20711:20711"
     environment:
-      - PORT=20710
+      - PORT=20711
     volumes:
       - /app/node_modules
       - ./frontend/react:/opt/app
+
+  vue-frontend:
+    build:
+      context: ./frontend/vue
+      dockerfile: ./Dockerfile
+    ports:
+      - "20712:20712"
+    environment:
+      - PORT=20712
+    volumes:
+      - /app/node_modules
+      - ./frontend/vue:/opt/app
 
   n8n:
     image: docker.n8n.io/n8nio/n8n

@@ -87,7 +87,6 @@ func createTodo(c *gin.Context) {
    if err := c.BindJSON(&requestBody); err != nil {
 		// return bad request
 		panic(err)
-		return;
    }
 	newTodo, err:= todo.New(requestBody.Content)
 	if err != nil {
