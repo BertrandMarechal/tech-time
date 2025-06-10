@@ -1,127 +1,172 @@
-import { reactive } from 'vue';
 import type { PaginationResults } from "../models/pagination.models.ts";
 import type { Todo } from "../models/todo.model.ts";
+import { defineStore } from 'pinia';
 
 const PORT = 20700;
 
-type SortFields = "date_created" | "content" | "order";
+export type SortFields = "date_created" | "content" | "order";
 export type SortingParameters = {
     sort: SortFields;
     direction: "asc" | "desc";
 };
 
-export const todoState = reactive<{
+interface TodoState {
     todos?: PaginationResults<Todo>;
     todoToUpdate?: Todo;
     loading: boolean;
+    saving: boolean;
     hasAnyRecord: boolean;
     size: number;
     from: number;
     error: string | null;
     searchText: string;
     sorting: SortingParameters;
-    addTodo: (todo: Pick<Todo, "content">) => void;
-    selectTodo: (todo: Todo) => void;
-    unselectTodo: () => void;
-    updateTodo: (id: number, todo: Pick<Todo, "content">) => void;
-    removeTodo: (id: number) => void;
-    moveTodo: (id: number, currentOrder: number, deltaOrder: number) => void;
-    sort: (params: SortingParameters) => void;
-    updateSize: (size: number) => void;
-    nextPage: () => void;
-    previousPage: () => void;
-    firstPage: () => void;
-    lastPage: () => void;
-    filterByText: (text: string) => void;
-    backendUpdated: () => void;
-}>({
-    loading: false,
-    hasAnyRecord: false,
-    size: 25,
-    from: 0,
-    error: null,
-    searchText: "",
-    sorting: {
-        sort: "date_created",
-        direction: "asc",
-    },
-    addTodo,
-    selectTodo,
-    unselectTodo,
-    updateTodo,
-    moveTodo,
-    removeTodo,
-    sort,
-    nextPage,
-    previousPage,
-    firstPage,
-    lastPage,
-    updateSize,
-    filterByText,
-    backendUpdated,
+}
+
+export const useTodoStore = defineStore("todos", {
+    state: (): TodoState => ({
+        loading: true,
+        saving: true,
+        hasAnyRecord: false,
+        size: 25,
+        from: 0,
+        error: null,
+        searchText: "",
+        sorting: {
+            sort: "date_created",
+            direction: "asc",
+        },
+    }),
+    actions: {
+        getTodos() {
+            this.loading = true;
+        },
+        gotError(error: string) {
+            this.error = error;
+            this.loading = false;
+        },
+        gotTodos(todos: PaginationResults<Todo>) {
+            this.todos = todos;
+            this.loading = false;
+        },
+        gotHasAnyRecord(hasAnyRecord: boolean) {
+            this.hasAnyRecord = hasAnyRecord;
+        },
+        sort(sorting: SortingParameters) {
+            this.sorting = sorting;
+        },
+        nextPage() {
+            this.from = this.from + this.size;
+        },
+        previousPage() {
+            this.from = this.from - this.size;
+        },
+        firstPage() {
+            this.from = 0;
+        },
+        lastPage() {
+            this.from = Math.floor((this.todos?.total || 0) / this.size) * this.size;
+        },
+        updateSize(size: number) {
+            this.size = size;
+        },
+        filterByText(text: string) {
+            this.searchText = text;
+        },
+        addTodo() {
+            this.saving = true;
+        },
+        addedTodo() {
+            this.saving = false;
+        },
+        updateTodo() {
+            this.saving = true;
+        },
+        updatedTodo() {
+            this.saving = false;
+            this.todoToUpdate = undefined;
+        },
+        moveTodo(_id: number, _currentOrder: number, _delta: number) {
+            this.saving = true;
+        },
+        movedTodo() {
+            this.saving = false;
+            this.todoToUpdate = undefined;
+        },
+        removeTodo() {
+            this.saving = true;
+        },
+        removedTodo() {
+            this.saving = false;
+        },
+        selectTodo(todo: Todo) {
+            this.todoToUpdate = todo;
+        },
+        unselectTodo() {
+            this.todoToUpdate = undefined;
+        },
+        backendUpdated() {
+
+        },
+    }
 });
 
-async function getTodos() {
-    getHasAnyRecord();
+export async function getTodos(store: any) {
     const query = new URLSearchParams({
-        sort: todoState.sorting.sort,
-        direction: todoState.sorting.direction,
-        from: `${todoState.from}`,
-        size: `${todoState.size}`,
-        text: todoState.searchText,
+        sort: store.sorting.sort,
+        direction: store.sorting.direction,
+        from: `${store.from}`,
+        size: `${store.size}`,
+        text: store.searchText,
     });
     const response = await fetch(`http://localhost:${PORT}/api/todos?${query.toString()}`);
     if (!response.ok) {
-        todoState.error = await response.text();
-        todoState.loading = false;
+        store.gotError(await response.text());
         return;
     }
-    todoState.todos = await response.json();
-    todoState.loading = false;
+    store.gotTodos(await response.json());
 }
 
-async function getHasAnyRecord() {
+export async function getHasAnyRecord(store: any) {
     const response = await fetch(`http://localhost:${PORT}/api/todos?size=0`);
     if (!response.ok) {
-        todoState.error = await response.text();
-        todoState.loading = false;
+        store.gotError(await response.text());
         return;
     }
-    todoState.hasAnyRecord = (await response.json()).total > 1;
+    store.gotHasAnyRecord((await response.json()).total > 0);
 }
 
-async function addTodo(enteredTodoData: Pick<Todo, "content">) {
-    const response = await fetch(`http://localhost:${PORT}/api/todos`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(enteredTodoData),
-    });
-
-    if (!response.ok) {
-        return;
-    }
-    getTodos();
-}
-
-async function updateTodo(id: number, enteredTodoData: Pick<Todo, "content">) {
-    const response = await fetch(`http://localhost:${PORT}/api/todos/${id}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(enteredTodoData),
-    });
-
-    if (!response.ok) {
-        return;
-    }
-    todoState.todoToUpdate = undefined;
-    getTodos();
-}
-
-async function moveTodo(id: number, currentOrder: number, deltaOrder: number) {
+// async function addTodo(store: any, enteredTodoData: Pick<Todo, "content">) {
+//     const response = await fetch(`http://localhost:${PORT}/api/todos`, {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(enteredTodoData),
+//     });
+//
+//     if (!response.ok) {
+//         return;
+//     }
+//     store.addedTodo();
+// }
+//
+// async function updateTodo(id: number, enteredTodoData: Pick<Todo, "content">) {
+//     const response = await fetch(`http://localhost:${PORT}/api/todos/${id}`, {
+//         method: "PUT",
+//         headers: {
+//             "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(enteredTodoData),
+//     });
+//
+//     if (!response.ok) {
+//         return;
+//     }
+//     store.updatedTodo();
+// }
+//
+export async function moveTodo(store: any, id: number, currentOrder: number, deltaOrder: number) {
     const response = await fetch(`http://localhost:${PORT}/api/todos/${id}/order`, {
         method: "PUT",
         headers: {
@@ -133,59 +178,16 @@ async function moveTodo(id: number, currentOrder: number, deltaOrder: number) {
     if (!response.ok) {
         return;
     }
-    todoState.todoToUpdate = undefined;
-    getTodos();
+    store.updatedTodo();
 }
-
-async function removeTodo(id: number) {
-    const response = await fetch(`http://localhost:${PORT}/api/todos/${id}`, {
-        method: "DELETE",
-    });
-    if (!response.ok) {
-        return;
-    }
-    getTodos();
-}
-
-function selectTodo(item: Todo) {
-    todoState.todoToUpdate = item;
-}
-
-function unselectTodo() {
-    todoState.todoToUpdate = undefined;
-}
-
-function sort(desiredSorting: { sort: SortFields; direction: "asc" | "desc" }) {
-    todoState.sorting = desiredSorting;
-    getTodos();
-}
-
-function nextPage() {
-    todoState.from = todoState.from + todoState.size;
-    getTodos();
-}
-function previousPage() {
-    todoState.from = todoState.from - todoState.size;
-    getTodos();
-}
-function firstPage() {
-    todoState.from = 0;
-    getTodos();
-}
-function lastPage() {
-    todoState.from = Math.floor((todoState.todos?.total || 0) / todoState.size) * todoState.size;
-    getTodos();
-}
-function updateSize(size: number) {
-    todoState.size = size;
-    getTodos();
-}
-function filterByText(text: string) {
-    todoState.searchText = text;
-    getTodos();
-}
-function backendUpdated() {
-    getTodos();
-}
-
-getTodos();
+//
+// async function removeTodo(id: number) {
+//     const response = await fetch(`http://localhost:${PORT}/api/todos/${id}`, {
+//         method: "DELETE",
+//     });
+//     if (!response.ok) {
+//         return;
+//     }
+//
+//     store.removedTodo();
+// }

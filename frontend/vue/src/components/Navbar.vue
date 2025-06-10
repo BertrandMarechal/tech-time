@@ -3,7 +3,7 @@ import { defineComponent, inject, ref } from 'vue';
 import { BackendType, CookieNames, FrontendType } from "../enums.ts";
 import Button from "./Button.vue"
 import { type VueCookies } from "vue-cookies";
-import { todoState } from "../store/todo.store.ts";
+import { useTodoStore } from "../store/todo.store.ts";
 
 export default defineComponent({
   name: "Navbar",
@@ -15,10 +15,11 @@ export default defineComponent({
     const selectedBackend = ref(BackendType.Python);
     const selectedFrontend = ref(FrontendType.Vue);
     const $cookies = inject<VueCookies>('$cookies');
+    const store = useTodoStore();
 
     function setBackend(backend: BackendType){
       selectedBackend.value = backend;
-      todoState.backendUpdated();
+      store.backendUpdated();
     }
     function setFrontend(frontend: FrontendType){
       selectedFrontend.value = frontend;
