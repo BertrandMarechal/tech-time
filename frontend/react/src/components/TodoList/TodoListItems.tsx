@@ -1,7 +1,7 @@
 import { TodoListItem } from "./TodoListItem.tsx";
 import { use } from "react";
 import { TodosContext } from "../../store/todos-context.tsx";
-import { NewTodo } from "../NewTodo.tsx";
+import { NewTodo } from "./NewTodo.tsx";
 
 export function TodoListItems() {
   const { todos } = use(TodosContext);

@@ -1,6 +1,6 @@
 import { use, useActionState, useState } from "react";
-import { TodosContext } from "../store/todos-context";
-import { Button } from "./Button.tsx";
+import { TodosContext } from "../../store/todos-context.tsx";
+import { Button } from "../Button.tsx";
 
 export function NewTodo() {
   const { addTodo } = use(TodosContext);

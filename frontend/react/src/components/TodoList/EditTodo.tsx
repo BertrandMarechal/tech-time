@@ -1,7 +1,7 @@
 import { useActionState, use } from "react";
-import type { Todo } from "../models/todo.model";
-import { TodosContext } from "../store/todos-context";
-import { Button } from "./Button.tsx";
+import type { Todo } from "../../models/todo.model.ts";
+import { TodosContext } from "../../store/todos-context.tsx";
+import { Button } from "../Button.tsx";
 
 export function EditTodo({ todo, onCancel }: { todo: Todo; onCancel?: () => void }) {
   const { updateTodo } = use(TodosContext);
