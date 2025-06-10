@@ -14,6 +14,7 @@ export const todoState = reactive<{
     todos?: PaginationResults<Todo>;
     todoToUpdate?: Todo;
     loading: boolean;
+    hasAnyRecord: boolean;
     size: number;
     from: number;
     error: string | null;
@@ -35,6 +36,7 @@ export const todoState = reactive<{
     backendUpdated: () => void;
 }>({
     loading: false,
+    hasAnyRecord: false,
     size: 25,
     from: 0,
     error: null,
@@ -60,6 +62,7 @@ export const todoState = reactive<{
 });
 
 async function getTodos() {
+    getHasAnyRecord();
     const query = new URLSearchParams({
         sort: todoState.sorting.sort,
         direction: todoState.sorting.direction,
@@ -75,6 +78,16 @@ async function getTodos() {
     }
     todoState.todos = await response.json();
     todoState.loading = false;
+}
+
+async function getHasAnyRecord() {
+    const response = await fetch(`http://localhost:${PORT}/api/todos?size=0`);
+    if (!response.ok) {
+        todoState.error = await response.text();
+        todoState.loading = false;
+        return;
+    }
+    todoState.hasAnyRecord = (await response.json()).total > 1;
 }
 
 async function addTodo(enteredTodoData: Pick<Todo, "content">) {

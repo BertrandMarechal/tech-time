@@ -14,6 +14,7 @@ export const TodosContext = createContext<{
   todos?: PaginationResults<Todo>;
   todoToUpdate?: Todo;
   loading: boolean;
+  hasAnyRecord: boolean;
   size: number;
   from: number;
   error: string | null;
@@ -37,6 +38,7 @@ export const TodosContext = createContext<{
   size: 25,
   from: 0,
   loading: false,
+  hasAnyRecord: false,
   error: null,
   searchText:"",
   addTodo: (_todo: Pick<Todo, "content">) => {},
@@ -65,6 +67,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
   const [todoToUpdate, setTodoToUpdate] = useState<Todo | undefined>(undefined);
   const [reload, setReload] = useState(true);
   const [loading, setLoading] = useState<boolean>(false);
+  const [hasAnyRecord, setHasAnyRecord] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [size, setSize] = useState<number>(25);
   const [from, setFrom] = useState<number>(0);
@@ -73,7 +76,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     sort: "date_created",
     direction: "asc",
   });
-  const [_, setCookies] = useCookies();
+  const [, setCookies] = useCookies();
 
   useEffect(() => {
     async function loadTodos() {
@@ -103,6 +106,22 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
 
     loadTodos();
   }, [reload, sorting, from, size]);
+
+  useEffect(() => {
+    async function checkHasAnyRecord() {
+      if (reload) {
+        const response = await fetch(`http://localhost:${PORT}/api/todos?size=0`);
+        if (!response.ok) {
+          setError(await response.text());
+          return;
+        }
+        const newTodos = await response.json();
+        setHasAnyRecord(newTodos.total > 0);
+      }
+    }
+
+    checkHasAnyRecord();
+  }, [reload]);
 
   async function addTodo(enteredTodoData: Pick<Todo, "content">) {
       const response = await fetch(`http://localhost:${PORT}/api/todos`, {
@@ -207,6 +226,7 @@ export function TodosContextProvider({ children }: PropsWithChildren) {
     todos,
     todoToUpdate,
     loading,
+    hasAnyRecord,
     error,
     addTodo,
     updateTodo,
